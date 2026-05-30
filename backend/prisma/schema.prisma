@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model Property {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  title        String
+  slug         String         @unique
+  description  String
+  price        Float
+  currency     String         @default("SEK")
+  city         String
+  address      String
+  county       String
+  rooms        Int
+  area         Float
+  landArea     Float?
+  propertyType PropertyType
+  status       PropertyStatus @default(FOR_SALE)
+  images       String[]
+  featured     Boolean        @default(false)
+  latitude     Float?
+  longitude    Float?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@map("properties")
+}
+
+model Proposal {
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  type         ProposalType
+  name         String
+  email        String
+  phone        String
+  message      String
+  propertyId   String?
+  propertyName String?
+  read         Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+
+  @@map("proposals")
+}
+
+model ContactMessage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("contact_messages")
+}
+
+enum PropertyType {
+  AGRICULTURAL
+  FOREST
+  MIXED
+  RESIDENTIAL
+  COMMERCIAL
+}
+
+enum PropertyStatus {
+  FOR_SALE
+  SOLD
+  RENTED
+  RESERVED
+}
+
+enum ProposalType {
+  BUYER
+  SELLER
+}
