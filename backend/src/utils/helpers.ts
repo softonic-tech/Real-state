@@ -36,3 +36,8 @@ export function parsePagination(page?: string, limit?: string) {
   const skip = (parsedPage - 1) * parsedLimit;
   return { page: parsedPage, limit: parsedLimit, skip };
 }
+
+export function getParam(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0] ?? "";
+  return value ?? "";
+}

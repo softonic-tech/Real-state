@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { ProposalService } from "../services/proposal.service";
 import { AuthRequest } from "../types";
-import { sendSuccess, sendError } from "../utils/helpers";
+import { sendSuccess, sendError, getParam } from "../utils/helpers";
 
 export class ProposalController {
   static async create(req: Request, res: Response): Promise<void> {
@@ -28,7 +28,7 @@ export class ProposalController {
 
   static async markAsRead(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const proposal = await ProposalService.markAsRead(req.params.id);
+      const proposal = await ProposalService.markAsRead(getParam(req.params.id));
       sendSuccess(res, proposal, "Förfrågan markerades som läst.");
     } catch (error) {
       sendError(res, (error as Error).message, 500);
@@ -37,7 +37,7 @@ export class ProposalController {
 
   static async delete(req: AuthRequest, res: Response): Promise<void> {
     try {
-      await ProposalService.delete(req.params.id);
+      await ProposalService.delete(getParam(req.params.id));
       sendSuccess(res, null, "Förfrågan raderades.");
     } catch (error) {
       sendError(res, (error as Error).message, 500);

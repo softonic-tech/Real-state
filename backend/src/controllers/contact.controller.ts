@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { ContactService } from "../services/contact.service";
 import { AuthRequest } from "../types";
-import { sendSuccess, sendError } from "../utils/helpers";
+import { sendSuccess, sendError, getParam } from "../utils/helpers";
 
 export class ContactController {
   static async create(req: Request, res: Response): Promise<void> {
@@ -27,7 +27,7 @@ export class ContactController {
 
   static async markAsRead(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const message = await ContactService.markAsRead(req.params.id);
+      const message = await ContactService.markAsRead(getParam(req.params.id));
       sendSuccess(res, message, "Meddelandet markerades som läst.");
     } catch (error) {
       sendError(res, (error as Error).message, 500);
@@ -36,7 +36,7 @@ export class ContactController {
 
   static async delete(req: AuthRequest, res: Response): Promise<void> {
     try {
-      await ContactService.delete(req.params.id);
+      await ContactService.delete(getParam(req.params.id));
       sendSuccess(res, null, "Meddelandet raderades.");
     } catch (error) {
       sendError(res, (error as Error).message, 500);

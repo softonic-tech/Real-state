@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { PropertyService } from "../services/property.service";
 import { AuthRequest, PropertyFilters } from "../types";
-import { sendSuccess, sendError } from "../utils/helpers";
+import { sendSuccess, sendError, getParam } from "../utils/helpers";
 
 export class PropertyController {
   static async getAll(req: Request, res: Response): Promise<void> {
@@ -31,7 +31,7 @@ export class PropertyController {
 
   static async getBySlug(req: Request, res: Response): Promise<void> {
     try {
-      const property = await PropertyService.getBySlug(req.params.slug);
+      const property = await PropertyService.getBySlug(getParam(req.params.slug));
       sendSuccess(res, property);
     } catch (error) {
       sendError(res, (error as Error).message, 404);
@@ -40,7 +40,7 @@ export class PropertyController {
 
   static async getById(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const property = await PropertyService.getById(req.params.id);
+      const property = await PropertyService.getById(getParam(req.params.id));
       sendSuccess(res, property);
     } catch (error) {
       sendError(res, (error as Error).message, 404);
@@ -67,7 +67,7 @@ export class PropertyController {
 
   static async update(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const property = await PropertyService.update(req.params.id, req.body);
+      const property = await PropertyService.update(getParam(req.params.id), req.body);
       sendSuccess(res, property, "Fastigheten uppdaterades.");
     } catch (error) {
       sendError(res, (error as Error).message, 500);
@@ -76,7 +76,7 @@ export class PropertyController {
 
   static async delete(req: AuthRequest, res: Response): Promise<void> {
     try {
-      await PropertyService.delete(req.params.id);
+      await PropertyService.delete(getParam(req.params.id));
       sendSuccess(res, null, "Fastigheten raderades.");
     } catch (error) {
       sendError(res, (error as Error).message, 500);

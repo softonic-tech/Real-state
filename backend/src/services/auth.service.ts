@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import { prisma } from "../config/database";
 import { config } from "../config";
 
@@ -15,9 +15,10 @@ export class AuthService {
       throw new Error("Ogiltiga inloggningsuppgifter.");
     }
 
-    const token = jwt.sign({ id: admin.id }, config.jwtSecret, {
-      expiresIn: config.jwtExpiresIn,
-    });
+    const signOptions: SignOptions = {
+      expiresIn: config.jwtExpiresIn as SignOptions["expiresIn"],
+    };
+    const token = jwt.sign({ id: admin.id }, config.jwtSecret, signOptions);
 
     return {
       token,
