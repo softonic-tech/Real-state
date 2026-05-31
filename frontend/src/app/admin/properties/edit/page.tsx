@@ -23,9 +23,11 @@ function EditPropertyContent() {
       return;
     }
 
+    const propertyId = id;
+
     async function fetchProperty() {
       try {
-        const res = await propertyService.getById(id);
+        const res = await propertyService.getById(propertyId);
         if (res.success && res.data) {
           setProperty(res.data);
         } else {
