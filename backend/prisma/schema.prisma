@@ -33,12 +33,22 @@ model Property {
   landArea     Float?
   propertyType PropertyType
   status       PropertyStatus @default(FOR_SALE)
-  images       String[]
-  featured     Boolean        @default(false)
-  latitude     Float?
-  longitude    Float?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  images          String[]
+  floorPlanImages String[]       @default([])
+  features        String[]       @default([])
+  housingType     String?
+  ownershipForm   String?
+  municipality    String?
+  minCash         Float?
+  titleDeedCost   Float?
+  electricityKwh  Int?
+  viewingDate     String?
+  viewingNote     String?
+  featured        Boolean        @default(false)
+  latitude        Float?
+  longitude       Float?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   @@map("properties")
 }

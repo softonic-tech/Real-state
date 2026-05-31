@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import SectionLabel from "@/components/ui/SectionLabel";
 import { proposalService } from "@/services/contact.service";
 import { COMPANY_INFO } from "@/constants";
 
@@ -14,17 +15,19 @@ interface ProposalFormProps {
 
 const FORM_COPY: Record<
   ProposalType,
-  { title: string; messageLabel: string; submitLabel: string }
+  { title: string; subtitle: string; messageLabel: string; submitLabel: string }
 > = {
   BUYER: {
-    title: "Valkommen till var spekulantregister",
-    messageLabel: "Meddelande till Nordmark",
-    submitLabel: "Skicka",
+    title: "Spekulantregister",
+    subtitle: "Registrera dig som köpare så hör vi av oss när rätt bostad dyker upp.",
+    messageLabel: "Meddelande till Olofssons Skog & Mäkleri",
+    submitLabel: "Skicka förfrågan",
   },
   SELLER: {
-    title: "Kontakta oss - jag funderar pa att salja",
-    messageLabel: "Meddelande till Nordmark",
-    submitLabel: "Skicka",
+    title: "Säljförfrågan",
+    subtitle: "Funderar du på att sälja? Berätta om din fastighet så återkommer vi.",
+    messageLabel: "Meddelande till Olofssons Skog & Mäkleri",
+    submitLabel: "Skicka förfrågan",
   },
 };
 
@@ -164,30 +167,33 @@ export default function ProposalForm({ type }: ProposalFormProps) {
   };
 
   const fieldClass =
-    "w-full bg-transparent border-0 border-b border-white/30 text-white placeholder:text-white/40 font-body text-sm py-3 focus:outline-none focus:border-white transition-colors";
-  const labelClass =
-    "block text-[11px] font-body font-medium text-white/70 tracking-[0.15em] uppercase mb-1";
+    "w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/35 font-body text-sm transition-all duration-200 focus:outline-none focus:border-accent/50 focus:ring-4 focus:ring-accent/10";
+  const labelClass = "label-field text-white/60 mb-2";
 
   return (
     <section
       id="proposal-form"
-      className="relative overflow-hidden bg-brand-950 text-white py-24"
+      className="relative overflow-hidden bg-brand-950 text-white section-block"
     >
-      <div
-        className="absolute inset-0 opacity-15 bg-cover bg-center pointer-events-none"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1600&q=80')",
-        }}
-      />
-      <div className="absolute inset-0 bg-brand-950/85 pointer-events-none" />
+      <div className="absolute inset-0 grain-overlay opacity-40" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/8 rounded-full blur-[120px]" />
+      <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-brand-800/30 rounded-full blur-[100px]" />
 
-      <div className="relative section-padding page-container max-w-4xl mx-auto">
-        <h2 className="font-display text-2xl md:text-3xl text-white text-center mb-12 tracking-wide uppercase">
-          {copy.title}
-        </h2>
+      <div className="relative section-padding page-container max-w-3xl mx-auto">
+        <div className="text-center mb-10">
+          <SectionLabel light align="center">
+            {type === "BUYER" ? "Köpare" : "Säljare"}
+          </SectionLabel>
+          <h2 className="font-display text-display-sm text-white mb-3">
+            {copy.title}
+          </h2>
+          <p className="text-stone-400 font-body text-sm max-w-md mx-auto leading-relaxed">
+            {copy.subtitle}
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="glass-panel-dark p-6 md:p-10">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {type === "BUYER" ? (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
@@ -418,24 +424,25 @@ export default function ProposalForm({ type }: ProposalFormProps) {
             </span>
           </label>
 
-          <div className="flex justify-center pt-4">
+          <div className="flex justify-center pt-2">
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center justify-center min-w-[160px] px-10 py-3.5 border border-white text-white font-body font-medium text-sm tracking-[0.2em] uppercase transition-all duration-300 hover:bg-white hover:text-brand-950 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-white disabled:opacity-50 disabled:cursor-not-allowed min-w-[180px]"
             >
               {loading ? "Skickar..." : copy.submitLabel}
             </button>
           </div>
         </form>
+        </div>
 
-        <p className="text-center text-white/40 text-xs font-body mt-10">
-          Eller kontakta oss direkt pa{" "}
+        <p className="text-center text-stone-500 text-xs font-body mt-8">
+          Eller kontakta oss direkt på{" "}
           <a
-            href={`mailto:${COMPANY_INFO.email}`}
-            className="text-white/60 hover:text-white transition-colors"
+            href={`tel:${COMPANY_INFO.phoneTel}`}
+            className="text-accent-light hover:text-white transition-colors"
           >
-            {COMPANY_INFO.email}
+            {COMPANY_INFO.phone}
           </a>
         </p>
       </div>

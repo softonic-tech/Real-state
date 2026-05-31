@@ -56,3 +56,43 @@ export function useDebounce<T>(value: T, delay: number): T {
 
   return debouncedValue;
 }
+
+const FAVORITES_KEY = "property_favorites";
+
+export function useFavorites() {
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(FAVORITES_KEY);
+      if (stored) setFavorites(JSON.parse(stored));
+    } catch {
+      setFavorites([]);
+    }
+    setReady(true);
+  }, []);
+
+  const persist = useCallback((next: string[]) => {
+    setFavorites(next);
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
+  }, []);
+
+  const isFavorite = useCallback(
+    (id: string) => favorites.includes(id),
+    [favorites]
+  );
+
+  const toggleFavorite = useCallback(
+    (id: string) => {
+      persist(
+        favorites.includes(id)
+          ? favorites.filter((f) => f !== id)
+          : [...favorites, id]
+      );
+    },
+    [favorites, persist]
+  );
+
+  return { favorites, isFavorite, toggleFavorite, ready };
+}

@@ -18,6 +18,11 @@ const config: Config = {
           900: "#343a2f",
           950: "#1a1e17",
         },
+        accent: {
+          DEFAULT: "#b8956a",
+          light: "#d4bc96",
+          dark: "#96784f",
+        },
         stone: {
           50: "#fafaf9",
           100: "#f5f5f4",
@@ -31,19 +36,32 @@ const config: Config = {
           900: "#1c1917",
           950: "#0c0a09",
         },
-        cream: "#f8f6f0",
-        parchment: "#f2efe6",
-        charcoal: "#2c2c2c",
+        cream: "#faf8f4",
+        parchment: "#f3efe8",
+        charcoal: "#1f1f1f",
       },
       fontFamily: {
-        display: ['"DM Serif Display"', "Georgia", "serif"],
-        body: ['"DM Sans"', "system-ui", "sans-serif"],
+        display: ['"Cormorant Garamond"', "Georgia", "serif"],
+        body: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
       },
       fontSize: {
-        "display-xl": ["4.5rem", { lineHeight: "1.05", letterSpacing: "-0.03em" }],
-        "display-lg": ["3.5rem", { lineHeight: "1.1", letterSpacing: "-0.02em" }],
-        "display-md": ["2.5rem", { lineHeight: "1.15", letterSpacing: "-0.02em" }],
-        "display-sm": ["2rem", { lineHeight: "1.2", letterSpacing: "-0.01em" }],
+        "display-xl": ["clamp(2.75rem,6vw,4.75rem)", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
+        "display-lg": ["clamp(2.25rem,4.5vw,3.75rem)", { lineHeight: "1.08", letterSpacing: "-0.02em" }],
+        "display-md": ["clamp(1.875rem,3vw,2.75rem)", { lineHeight: "1.12", letterSpacing: "-0.015em" }],
+        "display-sm": ["clamp(1.5rem,2.5vw,2rem)", { lineHeight: "1.2", letterSpacing: "-0.01em" }],
+      },
+      borderRadius: {
+        sm: "0.25rem",
+        DEFAULT: "0.5rem",
+        lg: "0.75rem",
+        xl: "1rem",
+        "2xl": "1.25rem",
+      },
+      boxShadow: {
+        soft: "0 4px 24px -4px rgba(26, 30, 23, 0.08)",
+        medium: "0 12px 40px -12px rgba(26, 30, 23, 0.12)",
+        strong: "0 24px 64px -16px rgba(26, 30, 23, 0.18)",
+        glow: "0 0 0 1px rgba(255,255,255,0.08), 0 24px 80px -20px rgba(0,0,0,0.45)",
       },
       spacing: {
         18: "4.5rem",
@@ -52,9 +70,14 @@ const config: Config = {
         30: "7.5rem",
       },
       animation: {
-        "fade-in": "fadeIn 0.6s ease-out forwards",
-        "fade-up": "fadeUp 0.7s ease-out forwards",
-        "slide-in": "slideIn 0.5s ease-out forwards",
+        "fade-in": "fadeIn 0.8s ease-out forwards",
+        "fade-up": "fadeUp 0.9s cubic-bezier(0.22,1,0.36,1) forwards",
+        "slide-in": "slideIn 0.6s ease-out forwards",
+        "ken-burns": "kenBurns 28s ease-out forwards",
+        float: "float 5s ease-in-out infinite",
+        shimmer: "shimmer 2.5s linear infinite",
+        "scale-in": "scaleIn 0.9s cubic-bezier(0.22,1,0.36,1) forwards",
+        marquee: "marquee 45s linear infinite",
       },
       keyframes: {
         fadeIn: {
@@ -62,12 +85,32 @@ const config: Config = {
           "100%": { opacity: "1" },
         },
         fadeUp: {
-          "0%": { opacity: "0", transform: "translateY(24px)" },
+          "0%": { opacity: "0", transform: "translateY(32px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         slideIn: {
-          "0%": { opacity: "0", transform: "translateX(-16px)" },
+          "0%": { opacity: "0", transform: "translateX(-20px)" },
           "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        kenBurns: {
+          "0%": { transform: "scale(1.12)" },
+          "100%": { transform: "scale(1)" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        scaleIn: {
+          "0%": { opacity: "0", transform: "translateY(16px) scale(0.98)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
         },
       },
     },

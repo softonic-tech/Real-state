@@ -3,6 +3,7 @@ import { prisma } from "../config/database";
 import { cloudinary } from "../config/cloudinary";
 import { PropertyFilters } from "../types";
 import { generateSlug, parsePagination } from "../utils/helpers";
+import { expandSwedishVariants } from "../utils/swedishSearch";
 
 export class PropertyService {
   static async getAll(
@@ -79,7 +80,8 @@ export class PropertyService {
       throw new Error("Fastigheten hittades inte.");
     }
     // Delete images from Cloudinary
-    for (const imageUrl of property.images) {
+    const allImages = [...property.images, ...property.floorPlanImages];
+    for (const imageUrl of allImages) {
       try {
         const publicId = this.extractPublicId(imageUrl);
         if (publicId) await cloudinary.uploader.destroy(publicId);
@@ -130,30 +132,58 @@ export class PropertyService {
   private static buildWhereClause(
     filters: PropertyFilters
   ): Prisma.PropertyWhereInput {
-    const where: Prisma.PropertyWhereInput = {};
+    const and: Prisma.PropertyWhereInput[] = [];
 
     if (filters.search) {
-      where.OR = [
-        { title: { contains: filters.search, mode: "insensitive" } },
-        { city: { contains: filters.search, mode: "insensitive" } },
-        { county: { contains: filters.search, mode: "insensitive" } },
-        { description: { contains: filters.search, mode: "insensitive" } },
-      ];
+      const variants = expandSwedishVariants(filters.search);
+      const searchOr: Prisma.PropertyWhereInput[] = [];
+
+      for (const term of variants) {
+        searchOr.push(
+          { title: { contains: term } },
+          { city: { contains: term } },
+          { address: { contains: term } },
+          { county: { contains: term } },
+          { municipality: { contains: term } },
+          { description: { contains: term } }
+        );
+      }
+
+      and.push({ OR: searchOr });
     }
 
-    if (filters.city) where.city = { contains: filters.city, mode: "insensitive" };
-    if (filters.county) where.county = { contains: filters.county, mode: "insensitive" };
-    if (filters.propertyType) where.propertyType = filters.propertyType as any;
-    if (filters.status) where.status = filters.status as any;
-    if (filters.featured === "true") where.featured = true;
+    if (filters.city) {
+      const variants = expandSwedishVariants(filters.city);
+      and.push({
+        OR: variants.map((term) => ({ city: { contains: term } })),
+      });
+    }
+
+    if (filters.county) {
+      const variants = expandSwedishVariants(filters.county);
+      and.push({
+        OR: variants.map((term) => ({ county: { contains: term } })),
+      });
+    }
+
+    if (filters.propertyType) {
+      and.push({ propertyType: filters.propertyType as Prisma.EnumPropertyTypeFilter["equals"] });
+    }
+    if (filters.status) {
+      and.push({ status: filters.status as Prisma.EnumPropertyStatusFilter["equals"] });
+    }
+    if (filters.featured === "true") {
+      and.push({ featured: true });
+    }
 
     if (filters.minPrice || filters.maxPrice) {
-      where.price = {};
-      if (filters.minPrice) where.price.gte = parseFloat(filters.minPrice);
-      if (filters.maxPrice) where.price.lte = parseFloat(filters.maxPrice);
+      const price: Prisma.IntFilter = {};
+      if (filters.minPrice) price.gte = parseFloat(filters.minPrice);
+      if (filters.maxPrice) price.lte = parseFloat(filters.maxPrice);
+      and.push({ price });
     }
 
-    return where;
+    return and.length ? { AND: and } : {};
   }
 
   private static extractPublicId(url: string): string | null {

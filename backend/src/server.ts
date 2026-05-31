@@ -2,62 +2,98 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import { config } from "./config";
+import { config, validateProductionConfig } from "./config";
 import routes from "./routes";
 import { errorHandler, notFoundHandler } from "./middleware/error";
 
+validateProductionConfig();
+
 const app = express();
 
-// Security
+function isLocalhostOrigin(origin: string): boolean {
+  return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+}
+
+function isVercelPreviewOrigin(origin: string): boolean {
+  return /^https:\/\/[\w-]+[\w.-]*\.vercel\.app$/.test(origin);
+}
+
+const corsOptions: cors.CorsOptions = {
+  origin(origin, callback) {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    const normalized = origin.replace(/\/$/, "");
+
+    if (config.allowedOrigins.includes(normalized)) {
+      callback(null, true);
+      return;
+    }
+
+    if (config.allowVercelPreviews && isVercelPreviewOrigin(normalized)) {
+      callback(null, true);
+      return;
+    }
+
+    if (!config.isProduction && isLocalhostOrigin(normalized)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(null, false);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.set("trust proxy", 1);
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || config.allowedOrigins.includes(origin)) {
-        callback(null, true);
-        return;
-      }
 
-      callback(null, false);
-    },
-    credentials: true,
-  })
-);
-
-// Rate limiting
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: config.isProduction ? 200 : 100,
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => req.method === "OPTIONS",
   })
 );
 
-// Body parsing
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// Health check
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
+  res.json({
+    status: "ok",
+    env: config.nodeEnv,
+    timestamp: new Date().toISOString(),
+  });
 });
 
-// Routes
 app.use("/api", routes);
 
-// Error handling
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// Start
 app.listen(config.port, () => {
   console.log(
     `Server running on port ${config.port} in ${config.nodeEnv} mode`
+  );
+  console.log(
+    `CORS: ${config.allowedOrigins.join(", ") || "(none)"}${
+      config.allowVercelPreviews ? " + Vercel previews" : ""
+    }${config.isProduction ? "" : " + localhost in development"}`
   );
 });
 

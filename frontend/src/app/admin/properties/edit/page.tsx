@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { ExternalLink } from "lucide-react";
 import toast from "react-hot-toast";
 import PropertyForm from "@/components/forms/PropertyForm";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { propertyService } from "@/services/property.service";
 import { Property } from "@/types";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -35,7 +38,7 @@ function EditPropertyContent() {
           router.push("/admin/properties");
         }
       } catch {
-        toast.error("Kunde inte hamta fastigheten.");
+        toast.error("Kunde inte hämta fastigheten.");
         router.push("/admin/properties");
       } finally {
         setLoadingData(false);
@@ -57,7 +60,7 @@ function EditPropertyContent() {
         toast.error(res.error || "Kunde inte uppdatera.");
       }
     } catch {
-      toast.error("Nagot gick fel.");
+      toast.error("Något gick fel.");
     } finally {
       setLoading(false);
     }
@@ -80,18 +83,28 @@ function EditPropertyContent() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="font-display text-2xl text-charcoal mb-1">
-          Redigera fastighet
-        </h1>
-        <p className="text-stone-500 font-body text-sm">{property.title}</p>
-      </div>
+      <AdminPageHeader
+        title="Redigera fastighet"
+        description={property.title}
+        backHref="/admin/properties"
+        backLabel="Till fastighetslistan"
+        action={
+          <Link
+            href={`/fastigheter/${property.slug}`}
+            target="_blank"
+            className="btn-outline text-sm"
+          >
+            <ExternalLink size={16} />
+            Visa på webbplatsen
+          </Link>
+        }
+      />
       <PropertyForm
         initialData={property}
         onSubmit={handleSubmit}
         onUploadImages={handleUpload}
         loading={loading}
-        submitLabel="Spara andringar"
+        submitLabel="Spara ändringar"
       />
     </div>
   );

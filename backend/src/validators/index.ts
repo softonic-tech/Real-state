@@ -22,6 +22,17 @@ export const propertySchema = z.object({
   featured: z.coerce.boolean().optional(),
   latitude: z.coerce.number().optional(),
   longitude: z.coerce.number().optional(),
+  images: z.array(z.string().url()).optional(),
+  floorPlanImages: z.array(z.string().url()).optional(),
+  features: z.array(z.string()).optional(),
+  housingType: z.string().optional(),
+  ownershipForm: z.string().optional(),
+  municipality: z.string().optional(),
+  minCash: z.coerce.number().positive().optional(),
+  titleDeedCost: z.coerce.number().positive().optional(),
+  electricityKwh: z.coerce.number().int().positive().optional(),
+  viewingDate: z.string().optional(),
+  viewingNote: z.string().optional(),
 });
 
 export const contactSchema = z.object({

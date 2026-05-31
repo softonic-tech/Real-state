@@ -2,7 +2,10 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
+import SiteLogo from "@/components/ui/SiteLogo";
 import { authService } from "@/services/auth.service";
 
 export default function AdminLoginPage() {
@@ -24,64 +27,82 @@ export default function AdminLoginPage() {
         toast.error(res.error || "Ogiltiga inloggningsuppgifter.");
       }
     } catch {
-      toast.error("Nagot gick fel. Forsok igen.");
+      toast.error("Något gick fel. Försök igen.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-brand-950 flex items-center justify-center px-6">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-10">
-          <div className="w-14 h-14 bg-brand-600 flex items-center justify-center mx-auto mb-6">
-            <span className="text-white font-display text-2xl">N</span>
+    <div className="min-h-screen bg-cream flex flex-col">
+      <div className="p-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-stone-500 font-body text-sm hover:text-brand-800 transition-colors"
+        >
+          <ArrowLeft size={16} />
+          Tillbaka till webbplatsen
+        </Link>
+      </div>
+
+      <div className="flex-1 flex items-center justify-center px-6 pb-16">
+        <div className="w-full max-w-md">
+          <div className="bg-white rounded-2xl border border-stone-200/90 shadow-soft p-8 md:p-10">
+            <div className="text-center mb-8">
+              <div className="flex justify-center mb-5">
+                <SiteLogo size="large" variant="light" />
+              </div>
+              <h1 className="font-display text-2xl text-charcoal mb-2">
+                Adminpanel
+              </h1>
+              <p className="text-stone-500 font-body text-sm">
+                Logga in för att hantera fastigheter och meddelanden
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label htmlFor="email" className="label-field">
+                  E-postadress
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input-field"
+                  placeholder="admin@nordmark.se"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="label-field">
+                  Lösenord
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input-field"
+                  placeholder="Ange lösenord"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary w-full disabled:opacity-50 mt-2"
+              >
+                {loading ? "Loggar in..." : "Logga in"}
+              </button>
+            </form>
           </div>
-          <h1 className="font-display text-2xl text-white mb-2">
-            Adminpanel
-          </h1>
-          <p className="text-stone-400 font-body text-sm">
-            Logga in for att hantera fastigheter
-          </p>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-xs font-body font-medium text-stone-400 tracking-wide uppercase mb-2">
-              E-postadress
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-brand-900 border border-brand-800 text-white placeholder:text-stone-500 font-body text-sm focus:outline-none focus:border-brand-500"
-              placeholder="admin@nordmark.se"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-body font-medium text-stone-400 tracking-wide uppercase mb-2">
-              Losenord
-            </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-brand-900 border border-brand-800 text-white placeholder:text-stone-500 font-body text-sm focus:outline-none focus:border-brand-500"
-              placeholder="Ange losenord"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary w-full bg-brand-600 hover:bg-brand-700 disabled:opacity-50"
-          >
-            {loading ? "Loggar in..." : "Logga in"}
-          </button>
-        </form>
       </div>
     </div>
   );

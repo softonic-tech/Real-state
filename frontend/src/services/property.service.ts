@@ -6,6 +6,7 @@ export const propertyService = {
     const params = new URLSearchParams();
     if (filters?.search) params.set("search", filters.search);
     if (filters?.city) params.set("city", filters.city);
+    if (filters?.county) params.set("county", filters.county);
     if (filters?.propertyType) params.set("propertyType", filters.propertyType);
     if (filters?.status) params.set("status", filters.status);
     if (filters?.minPrice) params.set("minPrice", filters.minPrice);
@@ -18,6 +19,41 @@ export const propertyService = {
 
   async getFeatured() {
     return api.get<Property[]>("/properties/featured");
+  },
+
+  async getRecommended(current: Property, limit = 3) {
+    const picked: Property[] = [];
+    const seen = new Set<string>([current.id]);
+
+    const addFrom = (list: Property[]) => {
+      for (const property of list) {
+        if (seen.has(property.id)) continue;
+        seen.add(property.id);
+        picked.push(property);
+        if (picked.length >= limit) return;
+      }
+    };
+
+    const cityRes = await this.getAll({
+      city: current.city,
+      status: "FOR_SALE",
+    });
+    if (cityRes.success && cityRes.data) addFrom(cityRes.data);
+
+    if (picked.length < limit) {
+      const countyRes = await this.getAll({
+        county: current.county,
+        status: "FOR_SALE",
+      });
+      if (countyRes.success && countyRes.data) addFrom(countyRes.data);
+    }
+
+    if (picked.length < limit) {
+      const featuredRes = await this.getFeatured();
+      if (featuredRes.success && featuredRes.data) addFrom(featuredRes.data);
+    }
+
+    return { success: true as const, data: picked.slice(0, limit) };
   },
 
   async getBySlug(slug: string) {

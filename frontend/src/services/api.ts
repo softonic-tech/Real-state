@@ -1,12 +1,9 @@
 import { ApiResponse } from "@/types";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { getApiUrl } from "@/lib/env";
 
 class ApiClient {
-  private baseUrl: string;
-
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
+  private get baseUrl(): string {
+    return getApiUrl();
   }
 
   private getToken(): string | null {
@@ -23,12 +20,58 @@ class ApiClient {
     return headers;
   }
 
+  private async parseResponse<T>(res: Response): Promise<ApiResponse<T>> {
+    const contentType = res.headers.get("content-type") || "";
+
+    if (!contentType.includes("application/json")) {
+      return {
+        success: false,
+        error: res.ok
+          ? "Ogiltigt svar från servern"
+          : `Serverfel (${res.status})`,
+      };
+    }
+
+    try {
+      const data = (await res.json()) as ApiResponse<T>;
+      if (!res.ok && data.success !== false) {
+        return {
+          success: false,
+          error: data.error || `Serverfel (${res.status})`,
+        };
+      }
+      return data;
+    } catch {
+      return { success: false, error: "Kunde inte läsa serversvar" };
+    }
+  }
+
+  private async request<T>(
+    endpoint: string,
+    init: RequestInit = {},
+    authenticated = false
+  ): Promise<ApiResponse<T>> {
+    if (!this.baseUrl) {
+      return { success: false, error: "API-URL saknas (NEXT_PUBLIC_API_URL)" };
+    }
+
+    try {
+      const res = await fetch(`${this.baseUrl}${endpoint}`, {
+        ...init,
+        headers: { ...this.getHeaders(authenticated), ...init.headers },
+        cache: init.cache ?? "no-store",
+      });
+      return this.parseResponse<T>(res);
+    } catch {
+      return {
+        success: false,
+        error: "Kunde inte nå servern. Kontrollera att API:et körs.",
+      };
+    }
+  }
+
   async get<T>(endpoint: string, authenticated = false): Promise<ApiResponse<T>> {
-    const res = await fetch(`${this.baseUrl}${endpoint}`, {
-      headers: this.getHeaders(authenticated),
-      cache: "no-store",
-    });
-    return res.json();
+    return this.request<T>(endpoint, { method: "GET" }, authenticated);
   }
 
   async post<T>(
@@ -36,12 +79,11 @@ class ApiClient {
     data: unknown,
     authenticated = false
   ): Promise<ApiResponse<T>> {
-    const res = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "POST",
-      headers: this.getHeaders(authenticated),
-      body: JSON.stringify(data),
-    });
-    return res.json();
+    return this.request<T>(
+      endpoint,
+      { method: "POST", body: JSON.stringify(data) },
+      authenticated
+    );
   }
 
   async put<T>(
@@ -49,40 +91,35 @@ class ApiClient {
     data: unknown,
     authenticated = false
   ): Promise<ApiResponse<T>> {
-    const res = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "PUT",
-      headers: this.getHeaders(authenticated),
-      body: JSON.stringify(data),
-    });
-    return res.json();
+    return this.request<T>(
+      endpoint,
+      { method: "PUT", body: JSON.stringify(data) },
+      authenticated
+    );
   }
 
   async patch<T>(
     endpoint: string,
     authenticated = false
   ): Promise<ApiResponse<T>> {
-    const res = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "PATCH",
-      headers: this.getHeaders(authenticated),
-    });
-    return res.json();
+    return this.request<T>(endpoint, { method: "PATCH" }, authenticated);
   }
 
   async delete<T>(
     endpoint: string,
     authenticated = false
   ): Promise<ApiResponse<T>> {
-    const res = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "DELETE",
-      headers: this.getHeaders(authenticated),
-    });
-    return res.json();
+    return this.request<T>(endpoint, { method: "DELETE" }, authenticated);
   }
 
   async uploadFiles(
     endpoint: string,
     files: File[]
   ): Promise<ApiResponse<string[]>> {
+    if (!this.baseUrl) {
+      return { success: false, error: "API-URL saknas (NEXT_PUBLIC_API_URL)" };
+    }
+
     const formData = new FormData();
     files.forEach((file) => formData.append("images", file));
 
@@ -90,13 +127,20 @@ class ApiClient {
     const token = this.getToken();
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
-    const res = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "POST",
-      headers,
-      body: formData,
-    });
-    return res.json();
+    try {
+      const res = await fetch(`${this.baseUrl}${endpoint}`, {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+      return this.parseResponse<string[]>(res);
+    } catch {
+      return {
+        success: false,
+        error: "Kunde inte ladda upp filer. Kontrollera API-anslutningen.",
+      };
+    }
   }
 }
 
-export const api = new ApiClient(API_URL);
+export const api = new ApiClient();

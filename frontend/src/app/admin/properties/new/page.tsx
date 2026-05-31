@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import PropertyForm from "@/components/forms/PropertyForm";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { propertyService } from "@/services/property.service";
 import { Property } from "@/types";
 
@@ -22,7 +23,7 @@ export default function NewPropertyPage() {
         toast.error(res.error || "Kunde inte skapa fastigheten.");
       }
     } catch {
-      toast.error("Nagot gick fel.");
+      toast.error("Något gick fel.");
     } finally {
       setLoading(false);
     }
@@ -39,14 +40,12 @@ export default function NewPropertyPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="font-display text-2xl text-charcoal mb-1">
-          Ny fastighet
-        </h1>
-        <p className="text-stone-500 font-body text-sm">
-          Skapa en ny fastighetsannons
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Ny fastighet"
+        description="Fyll i uppgifterna steg för steg — spara när du är klar."
+        backHref="/admin/properties"
+        backLabel="Till fastighetslistan"
+      />
       <PropertyForm
         onSubmit={handleSubmit}
         onUploadImages={handleUpload}

@@ -26,7 +26,7 @@ router.delete("/:id", authMiddleware, PropertyController.delete);
 router.post(
   "/upload",
   authMiddleware,
-  upload.array("images", 10),
+  upload.array("images", 50),
   PropertyController.uploadImages
 );
 

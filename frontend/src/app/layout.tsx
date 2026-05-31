@@ -1,27 +1,36 @@
 import type { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
+import { getSiteUrl } from "@/lib/env";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "Nordmark Fastigheter | Skogs- & Jordbruksfastigheter i Sverige",
-    template: "%s | Nordmark Fastigheter",
+    default: "Olofssons Skog & Mäkleri | Bostäder till salu",
+    template: "%s | Olofssons Skog & Mäkleri",
   },
   description:
-    "Specialister pa jordbruks- och skogsfastigheter i Sverige. Radgivning, formedling och vardering av mark- och skogsfastigheter.",
+    "Bostäder till salu i Junsele och omnejd. Fastighetsmäkleri och rådgivning för jord- och skogsfastigheter — Ingemar Olofsson, fastighetsmäklare.",
   keywords: [
-    "fastigheter",
-    "skogsfastigheter",
-    "jordbruksfastigheter",
-    "Sverige",
-    "fastighetsformedling",
-    "skogsmark",
-    "lantbruk",
+    "bostäder till salu",
+    "fastighetsmäklare",
+    "Junsele",
+    "Sollefteå",
+    "jord- och skogsfastigheter",
+    "fastighetsförmedling",
+    "värdering",
   ],
   openGraph: {
     type: "website",
     locale: "sv_SE",
-    siteName: "Nordmark Fastigheter",
+    siteName: "Olofssons Skog & Mäkleri",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  other: {
+    google: "notranslate",
   },
 };
 
@@ -31,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="sv">
+    <html lang="sv" translate="no">
       <body className="min-h-screen flex flex-col">
         {children}
         <Toaster

@@ -1,46 +1,46 @@
 import Link from "next/link";
-import { MapPin, Phone, Mail } from "lucide-react";
-import { COMPANY_INFO, NAV_LINKS } from "@/constants";
+import { MapPin, Phone, ArrowUpRight } from "lucide-react";
+import SiteLogo from "@/components/ui/SiteLogo";
+import {
+  COMPANY_INFO,
+  NAV_LINKS,
+  SITE_NAME,
+} from "@/constants";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-brand-950 text-stone-300">
-      <div className="section-padding page-container py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
-          <div className="lg:col-span-1">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-brand-600 flex items-center justify-center">
-                <span className="text-white font-display text-lg leading-none">
-                  N
-                </span>
-              </div>
-              <div>
-                <span className="font-display text-xl text-white">
-                  Nordmark
-                </span>
-                <span className="font-body text-xs text-stone-500 block -mt-0.5 tracking-widest uppercase">
-                  Fastigheter
-                </span>
-              </div>
-            </div>
-            <p className="text-sm text-stone-400 leading-relaxed max-w-xs">
-              Specialister pa jordbruks- och skogsfastigheter i Sverige sedan
-              1998. Vi erbjuder kvalificerad radgivning och formedling.
+    <footer className="bg-brand-950 text-stone-400">
+      <div className="section-padding page-container pt-16 pb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8">
+          <div className="lg:col-span-4">
+            <Link href="/" className="inline-block mb-6 group">
+              <SiteLogo size="large" className="group-hover:opacity-90 transition-opacity" />
+            </Link>
+            <p className="text-sm leading-relaxed max-w-xs mb-6">
+              Bostäder till salu i Junsele och omnejd. Fastighetsmäkleri och
+              rådgivning för jord- och skogsfastigheter.
             </p>
+            <Link
+              href="/kontakt"
+              className="inline-flex items-center gap-2 text-accent-light text-sm font-semibold hover:text-white transition-colors"
+            >
+              Kontakta oss
+              <ArrowUpRight size={16} />
+            </Link>
           </div>
 
-          <div>
-            <h4 className="text-white text-sm font-body font-semibold tracking-widest uppercase mb-6">
+          <div className="lg:col-span-2 lg:col-start-6">
+            <h4 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-5">
               Navigation
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2.5">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-stone-400 hover:text-white transition-colors duration-200"
+                    className="text-sm hover:text-white transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -49,82 +49,56 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div>
-            <h4 className="text-white text-sm font-body font-semibold tracking-widest uppercase mb-6">
-              Tjanster
+          <div className="lg:col-span-2">
+            <h4 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-5">
+              Tjänster
             </h4>
-            <ul className="space-y-3">
-              <li>
-                <span className="text-sm text-stone-400">
-                  Fastighetsformedling
-                </span>
-              </li>
-              <li>
-                <span className="text-sm text-stone-400">
-                  Skogsvardering
-                </span>
-              </li>
-              <li>
-                <span className="text-sm text-stone-400">
-                  Investeringsradgivning
-                </span>
-              </li>
-              <li>
-                <span className="text-sm text-stone-400">
-                  Juridisk radgivning
-                </span>
-              </li>
+            <ul className="space-y-2.5 text-sm">
+              <li>Fastighetsförmedling</li>
+              <li>Värdering</li>
+              <li>Generationsskiften</li>
+              <li>Juridiska handlingar</li>
             </ul>
           </div>
 
-          <div>
-            <h4 className="text-white text-sm font-body font-semibold tracking-widest uppercase mb-6">
+          <div className="lg:col-span-3">
+            <h4 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-5">
               Kontakt
             </h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <MapPin size={16} className="text-brand-500 mt-0.5 shrink-0" />
-                <span className="text-sm text-stone-400">
+                <MapPin size={17} className="text-accent mt-0.5 shrink-0" />
+                <span className="text-sm leading-relaxed">
                   {COMPANY_INFO.address}
                   <br />
                   {COMPANY_INFO.postalCode} {COMPANY_INFO.city}
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <Phone size={16} className="text-brand-500 shrink-0" />
+                <Phone size={17} className="text-accent shrink-0" />
                 <a
-                  href={`tel:${COMPANY_INFO.phone}`}
-                  className="text-sm text-stone-400 hover:text-white transition-colors"
+                  href={`tel:${COMPANY_INFO.phoneTel}`}
+                  className="text-sm hover:text-white transition-colors font-medium"
                 >
                   {COMPANY_INFO.phone}
-                </a>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail size={16} className="text-brand-500 shrink-0" />
-                <a
-                  href={`mailto:${COMPANY_INFO.email}`}
-                  className="text-sm text-stone-400 hover:text-white transition-colors"
-                >
-                  {COMPANY_INFO.email}
                 </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-stone-800 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-stone-500">
-            {currentYear} {COMPANY_INFO.name}. Alla rattigheter forbehallna.
-            Org.nr: {COMPANY_INFO.orgNumber}
+        <div className="divider-fade opacity-30 mt-14 mb-8" />
+
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-stone-600">
+          <p>
+            © {currentYear} {SITE_NAME}. Alla rättigheter förbehållna.
           </p>
-          <div className="flex items-center gap-6">
-            <Link
-              href="/admin/login"
-              className="text-xs text-stone-600 hover:text-stone-400 transition-colors"
-            >
-              Adminpanel
-            </Link>
-          </div>
+          <Link
+            href="/admin/login"
+            className="hover:text-stone-400 transition-colors"
+          >
+            Adminpanel
+          </Link>
         </div>
       </div>
     </footer>

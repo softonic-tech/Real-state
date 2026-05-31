@@ -8,12 +8,22 @@ export interface Property {
   city: string;
   address: string;
   county: string;
+  municipality: string | null;
   rooms: number;
   area: number;
   landArea: number | null;
   propertyType: PropertyType;
   status: PropertyStatus;
   images: string[];
+  floorPlanImages: string[];
+  features: string[];
+  housingType: string | null;
+  ownershipForm: string | null;
+  minCash: number | null;
+  titleDeedCost: number | null;
+  electricityKwh: number | null;
+  viewingDate: string | null;
+  viewingNote: string | null;
   featured: boolean;
   latitude: number | null;
   longitude: number | null;
@@ -87,6 +97,7 @@ export interface DashboardStats {
 export interface PropertyFilters {
   search?: string;
   city?: string;
+  county?: string;
   propertyType?: string;
   status?: string;
   minPrice?: string;
