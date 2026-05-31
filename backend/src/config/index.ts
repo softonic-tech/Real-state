@@ -16,6 +16,13 @@ function parseClientUrls(): string[] {
 
 const nodeEnv = process.env.NODE_ENV || "development";
 const isProduction = nodeEnv === "production";
+const isVercel = process.env.VERCEL === "1";
+
+function parseAllowVercelPreviews(): boolean {
+  if (process.env.ALLOW_VERCEL_PREVIEWS === "false") return false;
+  if (process.env.ALLOW_VERCEL_PREVIEWS === "true") return true;
+  return isProduction || isVercel;
+}
 
 function requireEnv(name: string, value: string | undefined): string {
   if (!value || value.trim() === "") {
@@ -32,10 +39,15 @@ export function validateProductionConfig(): void {
   requireEnv("DATABASE_URL", process.env.DATABASE_URL);
   requireEnv("JWT_SECRET", process.env.JWT_SECRET);
 
+  const allowVercelPreviews = parseAllowVercelPreviews();
   const clientUrls = parseClientUrls();
-  if (clientUrls.length === 0 || clientUrls[0] === "http://localhost:3000") {
+  const hasProductionClientUrl = clientUrls.some(
+    (url) => !url.startsWith("http://localhost")
+  );
+
+  if (!hasProductionClientUrl && !allowVercelPreviews) {
     console.error(
-      "[config] CLIENT_URL must include your production frontend URL(s) in production"
+      "[config] Set CLIENT_URL to your production frontend URL(s), or set ALLOW_VERCEL_PREVIEWS=true"
     );
     process.exit(1);
   }
@@ -47,10 +59,9 @@ export function validateProductionConfig(): void {
   };
 
   if (!cloudName || !apiKey || !apiSecret) {
-    console.error(
-      "[config] Cloudinary credentials are required in production for image uploads"
+    console.warn(
+      "[config] Cloudinary credentials missing — image uploads will fail until configured"
     );
-    process.exit(1);
   }
 }
 
@@ -58,13 +69,14 @@ export const config = {
   port: parseInt(process.env.PORT || "5000", 10),
   nodeEnv,
   isProduction,
+  isVercel,
   jwtSecret: isProduction
     ? requireEnv("JWT_SECRET", process.env.JWT_SECRET)
     : process.env.JWT_SECRET || "dev-only-jwt-secret",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
   frontendUrl: parseClientUrls()[0] || "http://localhost:3000",
   allowedOrigins: parseClientUrls(),
-  allowVercelPreviews: process.env.ALLOW_VERCEL_PREVIEWS === "true",
+  allowVercelPreviews: parseAllowVercelPreviews(),
   cloudinary: {
     cloudName:
       process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUD_NAME || "",

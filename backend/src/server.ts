@@ -15,44 +15,39 @@ function isLocalhostOrigin(origin: string): boolean {
 }
 
 function isVercelPreviewOrigin(origin: string): boolean {
-  return /^https:\/\/[\w-]+[\w.-]*\.vercel\.app$/.test(origin);
+  return /^https:\/\/[\w-]+\.vercel\.app$/.test(origin);
+}
+
+function isAllowedOrigin(origin: string): boolean {
+  const normalized = origin.replace(/\/$/, "");
+
+  if (config.allowedOrigins.includes(normalized)) return true;
+  if (config.allowVercelPreviews && isVercelPreviewOrigin(normalized)) return true;
+  if (!config.isProduction && isLocalhostOrigin(normalized)) return true;
+
+  return false;
 }
 
 const corsOptions: cors.CorsOptions = {
   origin(origin, callback) {
-    if (!origin) {
+    if (!origin || isAllowedOrigin(origin)) {
       callback(null, true);
       return;
     }
 
-    const normalized = origin.replace(/\/$/, "");
-
-    if (config.allowedOrigins.includes(normalized)) {
-      callback(null, true);
-      return;
-    }
-
-    if (config.allowVercelPreviews && isVercelPreviewOrigin(normalized)) {
-      callback(null, true);
-      return;
-    }
-
-    if (!config.isProduction && isLocalhostOrigin(normalized)) {
-      callback(null, true);
-      return;
-    }
-
+    console.warn(`[CORS] Blocked origin: ${origin}`);
     callback(null, false);
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 204,
 };
 
 app.set("trust proxy", 1);
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 app.use(
   helmet({
@@ -86,15 +81,17 @@ app.use("/api", routes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-app.listen(config.port, () => {
-  console.log(
-    `Server running on port ${config.port} in ${config.nodeEnv} mode`
-  );
-  console.log(
-    `CORS: ${config.allowedOrigins.join(", ") || "(none)"}${
-      config.allowVercelPreviews ? " + Vercel previews" : ""
-    }${config.isProduction ? "" : " + localhost in development"}`
-  );
-});
+if (!config.isVercel) {
+  app.listen(config.port, () => {
+    console.log(
+      `Server running on port ${config.port} in ${config.nodeEnv} mode`
+    );
+    console.log(
+      `CORS: ${config.allowedOrigins.join(", ") || "(none)"}${
+        config.allowVercelPreviews ? " + *.vercel.app" : ""
+      }${config.isProduction ? "" : " + localhost in development"}`
+    );
+  });
+}
 
 export default app;
