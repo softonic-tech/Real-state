@@ -57,7 +57,11 @@ function EditPropertyContent() {
         toast.success("Fastigheten uppdaterades.");
         router.push("/admin/properties");
       } else {
-        toast.error(res.error || "Kunde inte uppdatera.");
+        toast.error(
+          res.error?.includes(",")
+            ? "Kunde inte spara — kontrollera uppgifterna och försök igen."
+            : res.error || "Kunde inte uppdatera."
+        );
       }
     } catch {
       toast.error("Något gick fel.");
