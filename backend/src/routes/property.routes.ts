@@ -21,7 +21,12 @@ router.post(
   validate(propertySchema),
   PropertyController.create
 );
-router.put("/:id", authMiddleware, PropertyController.update);
+router.put(
+  "/:id",
+  authMiddleware,
+  validate(propertySchema),
+  PropertyController.update
+);
 router.delete("/:id", authMiddleware, PropertyController.delete);
 router.post(
   "/upload",

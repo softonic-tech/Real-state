@@ -16,11 +16,14 @@ export default function NewPropertyPage() {
     setLoading(true);
     try {
       const res = await propertyService.create(data);
-      if (res.success) {
+      if (res.success && res.data?.id) {
+        toast.success("Publicerad! Lägg gärna till fler detaljer.");
+        router.push(`/admin/properties/edit?id=${res.data.id}`);
+      } else if (res.success) {
         toast.success("Fastigheten skapades.");
         router.push("/admin/properties");
       } else {
-        toast.error(res.error || "Kunde inte skapa fastigheten.");
+        toast.error(res.error || "Kunde inte publicera. Försök igen.");
       }
     } catch {
       toast.error("Något gick fel.");
@@ -42,15 +45,16 @@ export default function NewPropertyPage() {
     <div>
       <AdminPageHeader
         title="Ny fastighet"
-        description="Fyll i uppgifterna steg för steg — spara när du är klar."
+        description="Titel, pris och ort räcker — publicera direkt och fyll i resten efteråt."
         backHref="/admin/properties"
         backLabel="Till fastighetslistan"
       />
       <PropertyForm
+        mode="quick"
         onSubmit={handleSubmit}
         onUploadImages={handleUpload}
         loading={loading}
-        submitLabel="Skapa fastighet"
+        submitLabel="Publicera fastighet"
       />
     </div>
   );
