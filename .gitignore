@@ -26,7 +26,6 @@ Thumbs.db
 desktop.ini
 
 # IDE / editor
-.vscode/
 .idea/
 *.swp
 *.swo
