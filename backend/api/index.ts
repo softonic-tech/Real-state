@@ -1,15 +1,13 @@
-const appModule = require("../dist/server.js");
+import type { IncomingMessage, ServerResponse } from "http";
+import app from "../src/server";
 
-const app = appModule.default || appModule;
-
-function originalPath(req) {
+function originalPath(req: IncomingMessage): string {
   const current = req.url || "";
   const pathname = current.split("?")[0];
   const rewritten =
     pathname === "/api" ||
     pathname === "/api/" ||
-    pathname.startsWith("/api/index.js") ||
-    pathname.startsWith("/dist/server.js");
+    pathname.startsWith("/api/index");
 
   if (pathname.startsWith("/api/") && !rewritten) return current;
 
@@ -28,7 +26,7 @@ function originalPath(req) {
   return current;
 }
 
-module.exports = (req, res) => {
+export default function handler(req: IncomingMessage, res: ServerResponse) {
   req.url = originalPath(req);
   return app(req, res);
-};
+}
